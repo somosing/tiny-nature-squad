@@ -1,9 +1,11 @@
 # Tiny Nature Squad 🌻🐛🐞
 
-A tiny mobile web game.
+A tiny mobile web snake-style game.
 
 ## Gameplay
 
+- Press **Start chaos**.
+- The game switches into a clean full-screen play mode.
 - Swipe to move the worm.
 - Collect sunflowers.
 - Avoid ladybugs.
@@ -15,18 +17,12 @@ Open `index.html` in your browser.
 
 ## How to publish on GitHub Pages
 
-1. Create a public GitHub repository named `tiny-nature-squad`.
-2. Upload `index.html` and `README.md`.
-3. Go to **Settings → Pages**.
-4. Select:
-   - Source: Deploy from a branch
-   - Branch: main
-   - Folder: / root
-5. Save.
-6. Open the live link GitHub gives you.
+1. Upload/replace `index.html` and `README.md`.
+2. Commit and push to `main`.
+3. GitHub Pages will update automatically.
 
 ## Suggested commit message
 
 ```text
-Upgrade Tiny Nature Squad to snake-style game
+Make Tiny Nature Squad fullscreen on play
 ```

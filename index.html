@@ -365,6 +365,142 @@
       display: none;
     }
 
+    body.playing {
+      background: linear-gradient(160deg, #bff098, #7bd69c);
+    }
+
+    body.playing #app {
+      padding: 0;
+      height: 100dvh;
+      min-height: 100dvh;
+      grid-template-rows: 1fr;
+      gap: 0;
+      overflow: hidden;
+    }
+
+    body.playing header,
+    body.playing footer {
+      display: none;
+    }
+
+    body.playing .game-wrap {
+      width: 100vw;
+      height: 100dvh;
+      min-height: 100dvh;
+      display: block;
+      padding: 0;
+    }
+
+    body.playing .board-shell {
+      width: 100vw;
+      height: 100dvh;
+      max-height: none;
+      aspect-ratio: auto;
+      border-radius: 0;
+      padding: 0;
+      box-shadow: none;
+      background: transparent;
+    }
+
+    body.playing .board-shell::before,
+    body.playing .board-shell::after {
+      display: none;
+    }
+
+    body.playing canvas {
+      width: 100vw;
+      height: 100dvh;
+      border-radius: 0;
+      box-shadow: none;
+      background:
+        linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px),
+        linear-gradient(160deg, #b9ea8f, #88d978 55%, #72cf97);
+      background-size: 25px 25px, 25px 25px, 100% 100%;
+    }
+
+    .hud {
+      display: none;
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      top: max(10px, env(safe-area-inset-top));
+      z-index: 20;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    body.playing .hud {
+      display: flex;
+    }
+
+    .hud-pill {
+      background: rgba(255,255,255,0.74);
+      backdrop-filter: blur(12px);
+      border: 2px solid rgba(255,255,255,0.82);
+      border-radius: 999px;
+      padding: 8px 12px;
+      box-shadow: 0 10px 25px rgba(57, 70, 33, 0.18);
+      font-weight: 950;
+      font-size: 0.92rem;
+    }
+
+    .hud button {
+      pointer-events: auto;
+      padding: 8px 12px;
+      font-size: 0.82rem;
+      box-shadow: 0 5px 0 #8dbc76, 0 10px 18px rgba(57, 70, 33, 0.13);
+      background: linear-gradient(180deg, #ffffff, #e7ffd8);
+    }
+
+    .touch-pad {
+      display: none;
+      position: fixed;
+      left: 50%;
+      bottom: max(14px, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      z-index: 20;
+      width: min(58vw, 210px);
+      grid-template-columns: 58px 58px 58px;
+      grid-template-rows: 58px 58px 58px;
+      gap: 7px;
+      justify-content: center;
+      align-content: center;
+      opacity: 0.58;
+    }
+
+    body.playing .touch-pad {
+      display: grid;
+    }
+
+    .touch-pad button {
+      padding: 0;
+      border-radius: 20px;
+      font-size: 1.3rem;
+      pointer-events: auto;
+      background: rgba(255,255,255,0.68);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 5px 0 rgba(141, 188, 118, 0.72), 0 10px 18px rgba(57, 70, 33, 0.12);
+    }
+
+    body.playing .overlay {
+      inset: 0;
+      border-radius: 0;
+    }
+
+    @media (orientation: landscape) and (max-height: 520px) {
+      body.playing .touch-pad {
+        left: auto;
+        right: max(14px, env(safe-area-inset-right));
+        bottom: max(12px, env(safe-area-inset-bottom));
+        transform: none;
+        width: 188px;
+        grid-template-columns: 52px 52px 52px;
+        grid-template-rows: 52px 52px 52px;
+      }
+    }
+
     @media (min-width: 720px) {
       #app {
         padding-inline: 22px;
@@ -389,6 +525,11 @@
 </head>
 <body>
   <main id="app">
+
+    <div class="hud" aria-label="fullscreen game heads up display">
+      <div class="hud-pill">🌻 <span id="hudScore">0</span> · 🦋 <span id="hudFlowers">0</span>/12</div>
+      <button id="exitBtn" class="secondary">Exit</button>
+    </div>
     <header>
       <section class="brand">
         <h1>Tiny Nature Squad 🌻</h1>
@@ -455,6 +596,13 @@
         <span class="desktop-note">Desktop: arrow keys also work.</span>
       </div>
     </footer>
+
+    <div class="touch-pad" aria-label="fullscreen direction controls">
+      <button class="up" data-dir="up">⬆️</button>
+      <button class="left" data-dir="left">⬅️</button>
+      <button class="right" data-dir="right">➡️</button>
+      <button class="down" data-dir="down">⬇️</button>
+    </div>
   </main>
 
   <script>
@@ -472,9 +620,25 @@
     const startBtn = document.getElementById("startBtn");
     const restartBtn = document.getElementById("restartBtn");
     const shareBtn = document.getElementById("shareBtn");
+    const hudScore = document.getElementById("hudScore");
+    const hudFlowers = document.getElementById("hudFlowers");
+    const exitBtn = document.getElementById("exitBtn");
 
     const GRID = 18;
-    const SIZE = canvas.width / GRID;
+    let SIZE = canvas.width / GRID;
+
+    function resizeCanvasForMode() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      if (document.body.classList.contains("playing")) {
+        canvas.width = Math.floor(window.innerWidth * dpr);
+        canvas.height = Math.floor(window.innerHeight * dpr);
+      } else {
+        canvas.width = 480;
+        canvas.height = 480;
+      }
+      SIZE = Math.min(canvas.width, canvas.height) / GRID;
+      draw();
+    }
     const FLOWERS_TO_BUTTERFLY = 12;
 
     const messages = [
@@ -518,7 +682,20 @@
       draw();
     }
 
-    function startGame() {
+    async function enterFullscreenIfPossible() {
+      try {
+        if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+          await document.documentElement.requestFullscreen();
+        }
+      } catch {
+        // Some mobile browsers block fullscreen. The CSS play mode still fills the screen.
+      }
+    }
+
+    async function startGame() {
+      document.body.classList.add("playing");
+      await enterFullscreenIfPossible();
+      resizeCanvasForMode();
       resetGame();
       running = true;
       startOverlay.classList.add("hidden");
@@ -631,9 +808,39 @@
       endOverlay.classList.remove("hidden");
     }
 
+    function exitPlayMode() {
+      running = false;
+      clearInterval(gameLoop);
+      document.body.classList.remove("playing");
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+      resizeCanvasForMode();
+      startOverlay.classList.remove("hidden");
+      endOverlay.classList.add("hidden");
+    }
+
     function updateUI() {
       scoreEl.textContent = score;
+      hudScore.textContent = score;
+      hudFlowers.textContent = Math.min(flowers, FLOWERS_TO_BUTTERFLY);
       meterFill.style.width = `${Math.min(100, (flowers / FLOWERS_TO_BUTTERFLY) * 100)}%`;
+    }
+
+    function boardOffsetX() {
+      return (canvas.width - SIZE * GRID) / 2;
+    }
+
+    function boardOffsetY() {
+      return (canvas.height - SIZE * GRID) / 2;
+    }
+
+    function cellCenterX(x) {
+      return boardOffsetX() + x * SIZE + SIZE / 2;
+    }
+
+    function cellCenterY(y) {
+      return boardOffsetY() + y * SIZE + SIZE / 2;
     }
 
     function draw() {
@@ -652,21 +859,30 @@
       gradient.addColorStop(0.55, "#8fdd80");
       gradient.addColorStop(1, "#7bd69c");
       ctx.fillStyle = gradient;
-      roundRect(0, 0, canvas.width, canvas.height, 24);
+      roundRect(0, 0, canvas.width, canvas.height, document.body.classList.contains("playing") ? 0 : 24);
       ctx.fill();
 
+      const ox = boardOffsetX();
+      const oy = boardOffsetY();
+      const boardSize = SIZE * GRID;
+
       ctx.save();
+      ctx.globalAlpha = 0.18;
+      ctx.fillStyle = "rgba(255,255,255,0.08)";
+      roundRect(ox, oy, boardSize, boardSize, document.body.classList.contains("playing") ? 20 : 24);
+      ctx.fill();
+
       ctx.globalAlpha = 0.22;
       for (let i = 0; i <= GRID; i++) {
         ctx.strokeStyle = "#ffffff";
         ctx.lineWidth = 1;
         ctx.beginPath();
-        ctx.moveTo(i * SIZE, 0);
-        ctx.lineTo(i * SIZE, canvas.height);
+        ctx.moveTo(ox + i * SIZE, oy);
+        ctx.lineTo(ox + i * SIZE, oy + boardSize);
         ctx.stroke();
         ctx.beginPath();
-        ctx.moveTo(0, i * SIZE);
-        ctx.lineTo(canvas.width, i * SIZE);
+        ctx.moveTo(ox, oy + i * SIZE);
+        ctx.lineTo(ox + boardSize, oy + i * SIZE);
         ctx.stroke();
       }
       ctx.restore();
@@ -689,8 +905,8 @@
       }
 
       worm.forEach((part, index) => {
-        const cx = part.x * SIZE + SIZE / 2;
-        const cy = part.y * SIZE + SIZE / 2;
+        const cx = cellCenterX(part.x);
+        const cy = cellCenterY(part.y);
         const radius = SIZE * (index === 0 ? 0.46 : 0.39);
 
         ctx.save();
@@ -725,8 +941,8 @@
 
     function drawButterflyWorm() {
       const head = worm[0];
-      const cx = head.x * SIZE + SIZE / 2;
-      const cy = head.y * SIZE + SIZE / 2;
+      const cx = cellCenterX(head.x);
+      const cy = cellCenterY(head.y);
 
       ctx.save();
       ctx.shadowColor = "rgba(101, 57, 166, 0.25)";
@@ -739,8 +955,8 @@
       wing(cx + SIZE * 0.35, cy, SIZE * 0.55, 0.75);
 
       worm.slice(0, 7).forEach((part, index) => {
-        const px = part.x * SIZE + SIZE / 2;
-        const py = part.y * SIZE + SIZE / 2;
+        const px = cellCenterX(part.x);
+        const py = cellCenterY(part.y);
         const radius = SIZE * (index === 0 ? 0.42 : 0.32);
         const grad = ctx.createRadialGradient(px - 4, py - 5, 2, px, py, radius);
         grad.addColorStop(0, "#ffe5ff");
@@ -814,8 +1030,8 @@
     }
 
     function drawFlower(x, y) {
-      const cx = x * SIZE + SIZE / 2;
-      const cy = y * SIZE + SIZE / 2;
+      const cx = cellCenterX(x);
+      const cy = cellCenterY(y);
 
       ctx.save();
       ctx.shadowColor = "rgba(135, 88, 4, 0.22)";
@@ -852,8 +1068,8 @@
     }
 
     function drawLadybug(bug) {
-      const cx = bug.x * SIZE + SIZE / 2;
-      const cy = bug.y * SIZE + SIZE / 2;
+      const cx = cellCenterX(bug.x);
+      const cy = cellCenterY(bug.y);
 
       ctx.save();
       ctx.shadowColor = "rgba(72, 13, 18, 0.25)";
@@ -896,8 +1112,8 @@
       ctx.save();
       ctx.globalAlpha = 0.25 + Math.sin(Date.now() / 180) * 0.05;
       const head = worm[0];
-      const cx = head.x * SIZE + SIZE / 2;
-      const cy = head.y * SIZE + SIZE / 2;
+      const cx = cellCenterX(head.x);
+      const cy = cellCenterY(head.y);
       const grad = ctx.createRadialGradient(cx, cy, SIZE * 0.2, cx, cy, SIZE * 2.4);
       grad.addColorStop(0, "#ffffff");
       grad.addColorStop(0.35, "#ff7eb6");
@@ -912,8 +1128,8 @@
     function burst(x, y, emoji, count = 12) {
       for (let i = 0; i < count; i++) {
         particles.push({
-          x: x * SIZE + SIZE / 2,
-          y: y * SIZE + SIZE / 2,
+          x: cellCenterX(x),
+          y: cellCenterY(y),
           vx: (Math.random() - 0.5) * 5,
           vy: (Math.random() - 0.5) * 5,
           life: 30 + Math.random() * 12,
@@ -1040,6 +1256,9 @@
 
     startBtn.addEventListener("click", startGame);
     restartBtn.addEventListener("click", restartGame);
+    exitBtn.addEventListener("click", exitPlayMode);
+    window.addEventListener("resize", resizeCanvasForMode);
+    window.addEventListener("orientationchange", () => setTimeout(resizeCanvasForMode, 250));
 
     shareBtn.addEventListener("click", async () => {
       const text = `Tiny Nature Squad score: ${score} 🌻🐛🐞${butterflyMode ? " I became butterfly-level ridiculous 🦋" : ""}`;
@@ -1051,6 +1270,7 @@
       }
     });
 
+    resizeCanvasForMode();
     resetGame();
   </script>
 </body>
