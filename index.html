@@ -126,70 +126,54 @@
 
     .hud {
       position: fixed;
-      left: 10px;
-      right: 10px;
-      top: max(8px, env(safe-area-inset-top));
+      left: 8px;
+      top: max(7px, env(safe-area-inset-top));
       z-index: 5;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       pointer-events: none;
-      gap: 6px;
     }
 
     .pill {
       pointer-events: none;
-      background: rgba(255,255,255,.24);
-      border: 1px solid rgba(255,255,255,.28);
-      backdrop-filter: blur(6px);
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(3px);
       border-radius: 999px;
-      padding: 6px 10px;
+      padding: 4px 7px;
       box-shadow: none;
-      font-weight: 950;
-      font-size: .78rem;
+      font-weight: 900;
+      font-size: .66rem;
       white-space: nowrap;
-      opacity: .48;
+      opacity: .28;
+      color: rgba(38,51,27,.62);
     }
 
-    #exitBtn {
-      pointer-events: auto;
-      padding: 6px 10px;
-      font-size: .72rem;
-      color: rgba(38,51,27,.55);
-      background: rgba(255,255,255,.20);
-      border: 1px solid rgba(255,255,255,.22);
-      box-shadow: none;
-      opacity: .42;
-      backdrop-filter: blur(6px);
-    }
-
-    #exitBtn:active {
-      transform: none;
-      box-shadow: none;
-      opacity: .75;
+    .hidden-exit {
+      display: none;
     }
 
     .toast {
       position: fixed;
       z-index: 6;
       left: 50%;
-      top: calc(max(58px, env(safe-area-inset-top) + 50px));
-      transform: translateX(-50%) translateY(-18px);
+      top: calc(max(44px, env(safe-area-inset-top) + 38px));
+      transform: translateX(-50%) translateY(-12px);
       opacity: 0;
-      background: rgba(255,255,255,.34);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,.32);
+      background: rgba(255,255,255,.12);
+      backdrop-filter: blur(3px);
+      border: 1px solid rgba(255,255,255,.10);
       border-radius: 999px;
-      padding: 8px 12px;
-      font-weight: 950;
+      padding: 6px 9px;
+      font-weight: 900;
+      font-size: .7rem;
       box-shadow: none;
-      opacity: 0;
       white-space: nowrap;
-      transition: .24s ease;
+      transition: .18s ease;
+      color: rgba(38,51,27,.56);
+      pointer-events: none;
     }
 
     .toast.show {
-      opacity: .62;
+      opacity: .30;
       transform: translateX(-50%) translateY(0);
     }
 
@@ -263,7 +247,7 @@
     <div class="start-card">
       <div class="start-emoji">🐛🌻🐞</div>
       <h1>Tiny Nature Squad</h1>
-      <p>Swipe anywhere to move the worm. Eat sunflowers. Avoid ladybugs. Become butterfly-level ridiculous.</p>
+      <p>Swipe anywhere to move the worm. No buttons. Just tiny chaos.</p>
       <button id="startBtn">Start chaos</button>
     </div>
   </section>
@@ -272,10 +256,10 @@
     <canvas id="game"></canvas>
 
     <div class="hud">
-      <div class="pill">🌻 Score <span id="score">0</span></div>
-      <div class="pill">🦋 <span id="flowers">0</span>/12</div>
-      <button id="exitBtn" class="secondary">Exit</button>
+      <div class="pill">🌻 <span id="score">0</span> · 🦋 <span id="flowers">0</span>/12</div>
     </div>
+
+    <button id="exitBtn" class="hidden-exit" aria-hidden="true">Exit</button>
 
     <div id="toast" class="toast">Tiny squad activated</div>
 
@@ -833,16 +817,7 @@
     }
 
 
-    window.addEventListener("keydown", e => {
-      const map = {
-        ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right",
-        w: "up", s: "down", a: "left", d: "right"
-      };
-      if (map[e.key]) {
-        e.preventDefault();
-        setDir(map[e.key]);
-      }
-    });
+
 
     let touchStart = null;
 
