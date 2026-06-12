@@ -126,36 +126,47 @@
 
     .hud {
       position: fixed;
-      left: 12px;
-      right: 12px;
-      top: max(10px, env(safe-area-inset-top));
+      left: 10px;
+      right: 10px;
+      top: max(8px, env(safe-area-inset-top));
       z-index: 5;
       display: flex;
       align-items: center;
       justify-content: space-between;
       pointer-events: none;
-      gap: 8px;
+      gap: 6px;
     }
 
     .pill {
       pointer-events: none;
-      background: rgba(255,255,255,.72);
-      border: 2px solid rgba(255,255,255,.86);
-      backdrop-filter: blur(13px);
+      background: rgba(255,255,255,.24);
+      border: 1px solid rgba(255,255,255,.28);
+      backdrop-filter: blur(6px);
       border-radius: 999px;
-      padding: 8px 12px;
-      box-shadow: 0 10px 28px rgba(40,70,30,.16);
+      padding: 6px 10px;
+      box-shadow: none;
       font-weight: 950;
-      font-size: .9rem;
+      font-size: .78rem;
       white-space: nowrap;
+      opacity: .48;
     }
 
     #exitBtn {
       pointer-events: auto;
-      padding: 8px 12px;
-      font-size: .82rem;
-      background: linear-gradient(180deg, #ffffff, #e9ffd9);
-      box-shadow: 0 5px 0 #8dbc76, 0 10px 18px rgba(40, 70, 30, .12);
+      padding: 6px 10px;
+      font-size: .72rem;
+      color: rgba(38,51,27,.55);
+      background: rgba(255,255,255,.20);
+      border: 1px solid rgba(255,255,255,.22);
+      box-shadow: none;
+      opacity: .42;
+      backdrop-filter: blur(6px);
+    }
+
+    #exitBtn:active {
+      transform: none;
+      box-shadow: none;
+      opacity: .75;
     }
 
     .toast {
@@ -165,51 +176,24 @@
       top: calc(max(58px, env(safe-area-inset-top) + 50px));
       transform: translateX(-50%) translateY(-18px);
       opacity: 0;
-      background: rgba(255,255,255,.82);
-      backdrop-filter: blur(12px);
-      border: 2px solid rgba(255,255,255,.9);
+      background: rgba(255,255,255,.34);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.32);
       border-radius: 999px;
-      padding: 10px 14px;
+      padding: 8px 12px;
       font-weight: 950;
-      box-shadow: 0 12px 32px rgba(40,70,30,.18);
+      box-shadow: none;
+      opacity: 0;
       white-space: nowrap;
       transition: .24s ease;
     }
 
     .toast.show {
-      opacity: 1;
+      opacity: .62;
       transform: translateX(-50%) translateY(0);
     }
 
-    .touch-pad {
-      position: fixed;
-      z-index: 5;
-      left: 50%;
-      bottom: max(16px, env(safe-area-inset-bottom));
-      transform: translateX(-50%);
-      width: 196px;
-      display: grid;
-      grid-template-columns: 58px 58px 58px;
-      grid-template-rows: 58px 58px 58px;
-      gap: 8px;
-      justify-content: center;
-      align-content: center;
-      opacity: .55;
-    }
 
-    .touch-pad button {
-      padding: 0;
-      border-radius: 20px;
-      font-size: 1.35rem;
-      background: rgba(255,255,255,.7);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 5px 0 rgba(141,188,118,.72), 0 10px 18px rgba(40,70,30,.12);
-    }
-
-    .up { grid-column: 2; grid-row: 1; }
-    .left { grid-column: 1; grid-row: 2; }
-    .right { grid-column: 3; grid-row: 2; }
-    .down { grid-column: 2; grid-row: 3; }
 
     .end-overlay {
       display: none;
@@ -272,22 +256,6 @@
       box-shadow: 0 8px 0 #8dbc76, 0 16px 28px rgba(40, 70, 30, .13);
     }
 
-    @media (orientation: landscape) and (max-height: 540px) {
-      .touch-pad {
-        left: auto;
-        right: max(14px, env(safe-area-inset-right));
-        bottom: max(12px, env(safe-area-inset-bottom));
-        transform: none;
-        width: 170px;
-        grid-template-columns: 50px 50px 50px;
-        grid-template-rows: 50px 50px 50px;
-        opacity: .48;
-      }
-
-      .touch-pad button {
-        border-radius: 17px;
-      }
-    }
   </style>
 </head>
 <body>
@@ -295,7 +263,7 @@
     <div class="start-card">
       <div class="start-emoji">🐛🌻🐞</div>
       <h1>Tiny Nature Squad</h1>
-      <p>Swipe the worm. Eat sunflowers. Avoid ladybugs. Become butterfly-level ridiculous.</p>
+      <p>Swipe anywhere to move the worm. Eat sunflowers. Avoid ladybugs. Become butterfly-level ridiculous.</p>
       <button id="startBtn">Start chaos</button>
     </div>
   </section>
@@ -310,13 +278,6 @@
     </div>
 
     <div id="toast" class="toast">Tiny squad activated</div>
-
-    <div class="touch-pad" aria-label="touch controls">
-      <button class="up" data-dir="up">⬆️</button>
-      <button class="left" data-dir="left">⬅️</button>
-      <button class="right" data-dir="right">➡️</button>
-      <button class="down" data-dir="down">⬇️</button>
-    </div>
 
     <div id="endOverlay" class="end-overlay">
       <div class="end-card">
@@ -871,9 +832,6 @@
       showToast.t = setTimeout(() => toast.classList.remove("show"), 900);
     }
 
-    document.querySelectorAll("[data-dir]").forEach(btn => {
-      btn.addEventListener("click", () => setDir(btn.dataset.dir));
-    });
 
     window.addEventListener("keydown", e => {
       const map = {

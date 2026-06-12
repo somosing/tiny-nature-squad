@@ -11,12 +11,14 @@ A full-screen mobile snake-style game.
 - Avoid ladybugs.
 - At 12 sunflowers, the worm becomes butterfly mode.
 
-## Important v4 fix
+## v5 changes
 
-The playable grid now fills the whole screen as a rectangular grid instead of staying as a centered square.
+- Removed on-screen arrow buttons.
+- Game is swipe-only on phone.
+- Score, butterfly progress, exit button, and popups are much more transparent.
 
 ## Suggested commit message
 
 ```text
-Make play mode fully fill the screen
+Clean up fullscreen HUD and remove arrow controls
 ```
