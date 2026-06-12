@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Tiny Nature Squad</title>
+  <style>
+    :root {
+      --bg1: #fff7d6;
+      --bg2: #dfffd6;
+      --card: rgba(255, 255, 255, 0.78);
+      --text: #2f2a1f;
+      --soft: #7a6d52;
+      --button: #ffffff;
+      --button-border: #e5d7a8;
+      --shadow: rgba(75, 62, 30, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.9), transparent 22%),
+        radial-gradient(circle at 85% 10%, rgba(255, 225, 122, 0.8), transparent 20%),
+        linear-gradient(145deg, var(--bg1), var(--bg2));
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 14px;
+      overflow: hidden;
+    }
+
+    .phone {
+      width: min(100%, 430px);
+      min-height: min(95vh, 820px);
+      background: var(--card);
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      border-radius: 32px;
+      box-shadow: 0 24px 70px var(--shadow);
+      backdrop-filter: blur(10px);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+
+    header {
+      text-align: center;
+    }
+
+    h1 {
+      margin: 2px 0 4px;
+      font-size: clamp(28px, 8vw, 42px);
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+
+    .subtitle {
+      color: var(--soft);
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .stat {
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(229, 215, 168, 0.7);
+      border-radius: 18px;
+      padding: 9px 8px;
+      text-align: center;
+      box-shadow: 0 8px 18px rgba(90, 80, 40, 0.08);
+    }
+
+    .stat b {
+      display: block;
+      font-size: 20px;
+    }
+
+    .stat span {
+      font-size: 12px;
+      color: var(--soft);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .board-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 310px;
+    }
+
+    .board {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-height: 420px;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      grid-template-rows: repeat(7, 1fr);
+      gap: 5px;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.48);
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      border-radius: 26px;
+      box-shadow: inset 0 4px 20px rgba(100, 90, 50, 0.08);
+    }
+
+    .cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.4);
+      font-size: clamp(24px, 8vw, 39px);
+      transition: transform 120ms ease, background 120ms ease;
+    }
+
+    .cell.player {
+      background: rgba(255, 244, 178, 0.95);
+      transform: scale(1.05);
+      box-shadow: 0 8px 16px rgba(117, 91, 13, 0.12);
+    }
+
+    .message {
+      min-height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 18px;
+      font-weight: 850;
+      color: #4a3e25;
+      box-shadow: 0 8px 20px rgba(90, 80, 40, 0.08);
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: 60px 60px;
+      gap: 10px;
+      padding: 4px 22px 0;
+    }
+
+    button {
+      border: none;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .ctrl {
+      border-radius: 20px;
+      background: var(--button);
+      border: 2px solid var(--button-border);
+      box-shadow: 0 8px 0 #dac983, 0 14px 22px rgba(70, 55, 12, 0.12);
+      font-size: 28px;
+      font-weight: 900;
+    }
+
+    .ctrl:active {
+      transform: translateY(5px);
+      box-shadow: 0 3px 0 #dac983, 0 8px 12px rgba(70, 55, 12, 0.10);
+    }
+
+    .up { grid-column: 2; grid-row: 1; }
+    .left { grid-column: 1; grid-row: 2; }
+    .down { grid-column: 2; grid-row: 2; }
+    .right { grid-column: 3; grid-row: 2; }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      border-radius: 32px;
+      background: rgba(255, 253, 238, 0.96);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 28px;
+      z-index: 5;
+    }
+
+    .hidden { display: none; }
+
+    .overlay h2 {
+      font-size: clamp(32px, 10vw, 52px);
+      margin: 0 0 10px;
+      line-height: 1;
+    }
+
+    .overlay p {
+      font-size: 17px;
+      line-height: 1.45;
+      color: var(--soft);
+      font-weight: 700;
+      margin: 8px 0;
+    }
+
+    .big-button {
+      margin-top: 18px;
+      padding: 15px 24px;
+      border-radius: 22px;
+      background: #fff;
+      border: 2px solid #e2cf78;
+      box-shadow: 0 9px 0 #d8bf4d, 0 18px 24px rgba(90, 70, 20, 0.14);
+      font-size: 19px;
+      font-weight: 950;
+      color: #3d331e;
+    }
+
+    .big-button:active {
+      transform: translateY(5px);
+      box-shadow: 0 4px 0 #d8bf4d, 0 10px 16px rgba(90, 70, 20, 0.12);
+    }
+
+    .tiny-note {
+      margin-top: 14px;
+      font-size: 13px !important;
+      color: #9a8a63 !important;
+    }
+
+    .wiggle {
+      animation: wiggle 300ms ease;
+    }
+
+    @keyframes wiggle {
+      0% { transform: rotate(0deg) scale(1); }
+      25% { transform: rotate(-5deg) scale(1.08); }
+      50% { transform: rotate(5deg) scale(1.08); }
+      100% { transform: rotate(0deg) scale(1); }
+    }
+
+    @media (max-height: 720px) {
+      .phone { min-height: 96vh; gap: 8px; padding: 14px; }
+      .controls { grid-template-rows: 52px 52px; }
+      .message { min-height: 40px; font-size: 14px; }
+      h1 { font-size: 30px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <header>
+      <h1>Tiny Nature Squad</h1>
+      <div class="subtitle">🌻 🐛 🐞 tiny chaos, very official</div>
+      <div class="stats">
+        <div class="stat"><b id="score">0</b><span>score</span></div>
+        <div class="stat"><b id="time">30</b><span>time</span></div>
+        <div class="stat"><b id="snacks">0</b><span>snacks</span></div>
+      </div>
+    </header>
+
+    <section class="board-wrap">
+      <div id="board" class="board" aria-label="Game board"></div>
+    </section>
+
+    <div id="message" class="message">Snack mission awaiting tiny worm approval.</div>
+
+    <section class="controls" aria-label="Movement controls">
+      <button class="ctrl up" onclick="move(0, -1)">⬆️</button>
+      <button class="ctrl left" onclick="move(-1, 0)">⬅️</button>
+      <button class="ctrl down" onclick="move(0, 1)">⬇️</button>
+      <button class="ctrl right" onclick="move(1, 0)">➡️</button>
+    </section>
+
+    <section id="startOverlay" class="overlay">
+      <h2>🌻🐛🐞</h2>
+      <p><b>Tiny Nature Squad</b></p>
+      <p>Collect snacks. Avoid suspicious nature. No meaning. Just tiny chaos.</p>
+      <button class="big-button" onclick="startGame()">Start tiny mission</button>
+      <p class="tiny-note">Works best with serious scientific tapping.</p>
+    </section>
+
+    <section id="endOverlay" class="overlay hidden">
+      <h2 id="endEmoji">🌻</h2>
+      <p id="endTitle"><b>Mission complete</b></p>
+      <p id="endText">Tiny Nature Squad survived.</p>
+      <button class="big-button" onclick="startGame()">Play again</button>
+      <p class="tiny-note">10/10 nature. Very official.</p>
+    </section>
+  </main>
+
+  <script>
+    const size = 7;
+    const board = document.getElementById("board");
+    const scoreEl = document.getElementById("score");
+    const timeEl = document.getElementById("time");
+    const snacksEl = document.getElementById("snacks");
+    const messageEl = document.getElementById("message");
+    const startOverlay = document.getElementById("startOverlay");
+    const endOverlay = document.getElementById("endOverlay");
+    const endEmoji = document.getElementById("endEmoji");
+    const endTitle = document.getElementById("endTitle");
+    const endText = document.getElementById("endText");
+
+    const goodItems = [
+      { emoji: "🌻", points: 10, msg: "Sunflower acquired. Nature approves." },
+      { emoji: "🍓", points: 8, msg: "Berry secured. Snack mission critical." },
+      { emoji: "🍪", points: 12, msg: "Cookie found. Worm morale increased." },
+      { emoji: "✨", points: 15, msg: "Sparkle collected. Very official." },
+      { emoji: "🐞", points: 18, msg: "Ladybug joined the squad. No license." }
+    ];
+
+    const badItems = [
+      { emoji: "🪨", penalty: 8, msg: "Rock said bonk." },
+      { emoji: "🐦", penalty: 12, msg: "Suspicious bird activity detected." },
+      { emoji: "👞", penalty: 15, msg: "Giant shoe. Extremely rude." },
+      { emoji: "💨", penalty: 6, msg: "Wind happened. Nobody asked." }
+    ];
+
+    const randomMessages = [
+      "Yee 😂",
+      "Tiny squad activated.",
+      "Worm is doing worm business.",
+      "This is scientifically stupid.",
+      "Nature is happening.",
+      "Snack radar says maybe left. Or not.",
+      "The squad has no plan. Perfect."
+    ];
+
+    let player;
+    let items;
+    let score;
+    let snacks;
+    let timeLeft;
+    let timer;
+    let playing = false;
+
+    function key(pos) {
+      return `${pos.x},${pos.y}`;
+    }
+
+    function randomPos() {
+      return {
+        x: Math.floor(Math.random() * size),
+        y: Math.floor(Math.random() * size)
+      };
+    }
+
+    function same(a, b) {
+      return a.x === b.x && a.y === b.y;
+    }
+
+    function occupied(pos) {
+      return same(pos, player) || items.some(item => same(item, pos));
+    }
+
+    function freeRandomPos() {
+      let pos = randomPos();
+      let guard = 0;
+      while (occupied(pos) && guard < 100) {
+        pos = randomPos();
+        guard++;
+      }
+      return pos;
+    }
+
+    function makeItem(type) {
+      const source = type === "good" ? goodItems : badItems;
+      const base = source[Math.floor(Math.random() * source.length)];
+      return { ...base, type, ...freeRandomPos() };
+    }
+
+    function resetItems() {
+      items = [];
+      for (let i = 0; i < 5; i++) items.push(makeItem("good"));
+      for (let i = 0; i < 3; i++) items.push(makeItem("bad"));
+    }
+
+    function drawBoard() {
+      board.innerHTML = "";
+      const map = new Map();
+      items.forEach(item => map.set(key(item), item));
+
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+          const cell = document.createElement("div");
+          cell.className = "cell";
+
+          if (player.x === x && player.y === y) {
+            cell.textContent = "🐛";
+            cell.classList.add("player");
+          } else {
+            const item = map.get(`${x},${y}`);
+            cell.textContent = item ? item.emoji : "";
+          }
+
+          board.appendChild(cell);
+        }
+      }
+    }
+
+    function setMessage(text) {
+      messageEl.textContent = text;
+      messageEl.classList.remove("wiggle");
+      void messageEl.offsetWidth;
+      messageEl.classList.add("wiggle");
+    }
+
+    function updateStats() {
+      scoreEl.textContent = score;
+      snacksEl.textContent = snacks;
+      timeEl.textContent = timeLeft;
+    }
+
+    function startGame() {
+      clearInterval(timer);
+      player = { x: 3, y: 3 };
+      score = 0;
+      snacks = 0;
+      timeLeft = 30;
+      playing = true;
+      startOverlay.classList.add("hidden");
+      endOverlay.classList.add("hidden");
+      resetItems();
+      updateStats();
+      drawBoard();
+      setMessage("Tiny mission started. Proceed with worm confidence.");
+
+      timer = setInterval(() => {
+        timeLeft--;
+        if (timeLeft <= 0) {
+          timeLeft = 0;
+          updateStats();
+          finishGame();
+        } else {
+          updateStats();
+        }
+      }, 1000);
+    }
+
+    function move(dx, dy) {
+      if (!playing) return;
+
+      const next = {
+        x: Math.max(0, Math.min(size - 1, player.x + dx)),
+        y: Math.max(0, Math.min(size - 1, player.y + dy))
+      };
+
+      if (same(next, player)) {
+        setMessage("Invisible wall. Very mysterious.");
+        return;
+      }
+
+      player = next;
+      const index = items.findIndex(item => same(item, player));
+
+      if (index >= 0) {
+        const item = items[index];
+        if (item.type === "good") {
+          score += item.points;
+          snacks++;
+          setMessage(item.msg);
+          items[index] = makeItem(Math.random() < 0.72 ? "good" : "bad");
+        } else {
+          score = Math.max(0, score - item.penalty);
+          setMessage(item.msg);
+          items[index] = makeItem(Math.random() < 0.65 ? "bad" : "good");
+        }
+      } else if (Math.random() < 0.18) {
+        setMessage(randomMessages[Math.floor(Math.random() * randomMessages.length)]);
+      }
+
+      updateStats();
+      drawBoard();
+    }
+
+    function finishGame() {
+      clearInterval(timer);
+      playing = false;
+
+      let title;
+      let text;
+      let emoji;
+
+      if (score >= 150) {
+        emoji = "🌻🐛🐞";
+        title = "Legendary tiny chaos";
+        text = `Score: ${score}. The squad is unstoppable and probably needs snacks.`;
+      } else if (score >= 90) {
+        emoji = "🐛✨";
+        title = "Mission complete";
+        text = `Score: ${score}. Tiny Nature Squad survived. Very official.`;
+      } else if (score >= 40) {
+        emoji = "🍪🐛";
+        title = "Snack-adjacent success";
+        text = `Score: ${score}. The worm got distracted but remained iconic.`;
+      } else {
+        emoji = "🪨🐛";
+        title = "Tiny criminal activity";
+        text = `Score: ${score}. The squad got bonked by nature. Try again.`;
+      }
+
+      endEmoji.textContent = emoji;
+      endTitle.innerHTML = `<b>${title}</b>`;
+      endText.textContent = text;
+      endOverlay.classList.remove("hidden");
+    }
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowUp") move(0, -1);
+      if (event.key === "ArrowDown") move(0, 1);
+      if (event.key === "ArrowLeft") move(-1, 0);
+      if (event.key === "ArrowRight") move(1, 0);
+    });
+
+    // Draw the empty first view behind the start screen.
+    player = { x: 3, y: 3 };
+    score = 0;
+    snacks = 0;
+    timeLeft = 30;
+    resetItems();
+    updateStats();
+    drawBoard();
+  </script>
+</body>
+</html>
