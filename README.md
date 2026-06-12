@@ -1,26 +1,32 @@
 # Tiny Nature Squad 🌻🐛🐞
 
-A tiny mobile-friendly web game. No app install needed.
+A tiny mobile web game.
 
-## Run locally
+## Gameplay
+
+- Swipe to move the worm.
+- Collect sunflowers.
+- Avoid ladybugs.
+- At 12 collected sunflowers, the worm transforms into butterfly mode.
+
+## How to run locally
 
 Open `index.html` in your browser.
 
-## Share on phone
+## How to publish on GitHub Pages
 
-### Option 1: Netlify Drop
-1. Go to Netlify Drop.
-2. Drag this whole folder into the page.
-3. Send the generated link.
-
-### Option 2: GitHub Pages
-1. Create a new GitHub repo called `tiny-nature-squad`.
+1. Create a public GitHub repository named `tiny-nature-squad`.
 2. Upload `index.html` and `README.md`.
-3. Go to Settings → Pages.
-4. Source: deploy from branch, branch: `main`, folder: `/root`.
-5. Open the generated GitHub Pages link.
+3. Go to **Settings → Pages**.
+4. Select:
+   - Source: Deploy from a branch
+   - Branch: main
+   - Folder: / root
+5. Save.
+6. Open the live link GitHub gives you.
 
-## Send text idea
+## Suggested commit message
 
-I made a very stupid Tiny Nature Squad thing 🌻🐛🐞  
-no meaning, just tiny chaos
+```text
+Upgrade Tiny Nature Squad to snake-style game
+```
