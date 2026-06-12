@@ -1,28 +1,22 @@
 # Tiny Nature Squad 🌻🐛🐞
 
-A tiny mobile web snake-style game.
+A full-screen mobile snake-style game.
 
 ## Gameplay
 
 - Press **Start chaos**.
-- The game switches into a clean full-screen play mode.
-- Swipe to move the worm.
+- The game switches into full-screen play mode.
+- Swipe anywhere to move the worm.
 - Collect sunflowers.
 - Avoid ladybugs.
-- At 12 collected sunflowers, the worm transforms into butterfly mode.
+- At 12 sunflowers, the worm becomes butterfly mode.
 
-## How to run locally
+## Important v4 fix
 
-Open `index.html` in your browser.
-
-## How to publish on GitHub Pages
-
-1. Upload/replace `index.html` and `README.md`.
-2. Commit and push to `main`.
-3. GitHub Pages will update automatically.
+The playable grid now fills the whole screen as a rectangular grid instead of staying as a centered square.
 
 ## Suggested commit message
 
 ```text
-Make Tiny Nature Squad fullscreen on play
+Make play mode fully fill the screen
 ```
